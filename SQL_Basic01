@@ -1,0 +1,167 @@
+show user;
+--컨트롤 + 슬러시 = --자동생성
+--DDL (데이터 정의어): CREATE, ALTER, DROP -( AUTO COMMIT;자동커밋(저장))
+--DML (데이터 조작어): INSERT, UPDATE, DELETE, SELECT -( COMMIT; 을 꼭 입력해야 한다!!)
+--DCL (데이터 제어어): GRAND, REVOKE
+--TCL (트랜잭션 제어어): COMMIT, ROLLBACK
+--COMMIT;(완전히 저장한다) 반드시 입력해야한다!!
+
+--Oracle에서 만들어 놓은 이름은 대문자
+--내가 정한 이름은 소문자
+
+--1. 테이블 생성(CREATE)
+CREATE TABLE tbl_student(
+    stuno NUMBER PRIMARY KEY, -- 제약조건(1.PK KEY)
+    name VARCHAR2(20) NOT NULL,  -- 제약조건(2.NOT NULL) 
+    age NUMBER(2),
+    major VARCHAR2(30),
+    sal NUMBER,
+    pno NUMBER UNIQUE, --pno 상품번호 중복x
+    score NUMBER(3),
+    regdate DATE DEFAULT SYSDATE--  년월일시간초 DATE에 값이 없으면 DEFAULT값을 넣어라. SYSDATE는 현재시간을 그대로 알려줌
+);
+
+--2. 제약조건(Constraint) : 테이블!!
+-- 1) NOT NULL
+-- 컬럼에 공백값을 허용하지 않음!(값이 모두 있어야 함)
+-- 2) UNIQUE
+-- 중복된 데이터가 없어야 함!
+-- 3) CHECK
+-- 값의 범위를 지정할 수 있다 0~100, (1,2,3,) )
+-- 4) DEFAULT
+-- 데이터에 값이 들어오지 않으면 설정된 default값을 넣음!
+-- 5) PRIMARY KEY(기본키)
+-- 테이블에 데이터를 유일하게 식별할 수 있는 컬럼을 선정!
+--  PRIMARY KEY에 (NOT NULL + UNIQUE 결합(포함)이 된다!!)
+-- 6) FOREING KEY(외래키)
+-- 관계를 맺어줄 때 사용!
+-- 관계를 맺는 테이블의 기본키만 외래키로 선정 가능!
+
+--3. 테이블 삭제!
+DROP TABLE tbl_student;
+
+--4. 테이블 수정!(ALTER)
+ALTER TABLE tbl_student
+    DROP COLUMN score; -- score 컬럼 삭제
+    ALTER TABLE tbl_student
+    ADD (score NUMBER(3)); -- score 컬럼 추가
+ALTER TABLE tbl_student
+    MODIFY (score NUMBER(5)); --score 컬럼 수정
+    
+-- 테이블에 제약조건 추가
+ALTER TABLE tbl_student
+    ADD CONSTRAINT stu_ck_score --제약조건 이름
+    CHECK(score >= 0 AND score <= 100); --CHECK 제약조건, score에 값을 주겠다
+
+-- DML : 데이터조작어(INSERT, UPDATE, DELETE, SELECT) 구조를 보여줘라
+-- 1) INSERT(값을 추가)  INSERT INTO tbl_  <- 외우기
+INSERT INTO tbl_student(stuno, name, age, major, sal, pno, score) -- 홀따움표' '를 사용해야한다!!
+VALUES(1, '혜원', 25, '영어번역', 4000, 1, 90); --매칭을 시켜줘야한다 (1행이 삽입 됨(값이 들어감))상품,게시글,댓글..,
+INSERT INTO tbl_student(stuno, name, age, major, sal, pno, score)
+VALUES(2, '동선', 27, '영상편집', 5000, 2, 95);-- regdate DATE를 입력 안해도 DEFAULT SYSDATE가 기본으로 들어가서 표시가 된다
+INSERT INTO tbl_student(stuno, name, age, major, sal, pno, score)
+VALUES(3, '미경', 24, 'IT', 2600, 3, 90);
+INSERT INTO tbl_student(stuno, name, age, major, sal, pno, score)
+VALUES(4, '진주', 25, 'IT', 3000, 4, 99);
+INSERT INTO tbl_student(stuno, name, age, major, sal, pno, score)
+VALUES(5, '승주', 28, 'IT', 3500, 5, 85);
+INSERT INTO tbl_student(stuno, name, age, major, sal, pno, score)
+VALUES(6, '운이', 27, '요리', 4200, 6, 98);
+INSERT INTO tbl_student(stuno, name, age, major, sal, pno, score)
+VALUES(7, '종희', 27, '디자인', 5200, 7, 92);
+COMMIT; --완전저장
+
+
+-- 2) UPDATE(값을 수정)
+UPDATE tbl_student
+    SET age = 28,
+        sal = 5500
+WHERE stuno = 2; --반드시 WHERE절과 함께 꼭 써라
+
+SELECT * FROM tbl_student;
+        
+-- 3) DELELTE(값을 삭제)
+DELETE FROM tbl_student
+WHERE stuno = 2; 
+
+-- 4) SELECT(값을 조회)
+--SELECT 컬럼들
+--FROM 테이블명;
+--( * ) : 모든 컬럼
+SELECT * FROM tbl_student; 
+
+SELECT name, age, sal 
+FROM tbl_student; 
+
+-- alias : 별명
+SELECT name AS 이름, age, sal AS 연봉
+FROM tbl_student; 
+
+--검색
+--이름이 '동선'인 학생을 검색
+SELECT *
+FROM tbl_student
+WHERE name = '동선';
+
+--전공이 'IT'인 학생을 검색
+SELECT *
+FROM tbl_student
+WHERE major = 'IT'; --문자열 안의 값은 대소문자 구별을 한다!!
+
+--SCORE가 90점 이상인 학생만 검색
+SELECT *
+FROM tbl_student
+WHERE score >=95;
+
+--SCORE사 90점 이상이면서 95점 이하인 학생만 검색
+-- 방법1
+SELECT *
+FROM tbl_student
+WHERE score >=90 AND score <= 95; --AND,OR 기호를 그대로 쓴다.
+
+-- 방법2
+SELECT *
+FROM tbl_student
+WHERE score IN(90, 91, 92, 93, 94, 95); 
+
+SELECT *
+FROM tbl_student
+WHERE major IN('영어번역', '영상편집'); --IN은 범위를 지정함
+
+SELECT *
+FROM tbl_student
+WHERE major = '영어번역' OR major = '영상편집';
+
+--정렬
+SELECT *
+FROM tbl_student
+ORDER BY score; -- 정렬해달라는 뜻 / 생략하면 ASC가 DEFAULT
+--DESC 내림차순 (큰수-->작은수)
+--ASC 오름차순 (작은수 --> 큰수)
+
+--중복된 값이 있을때 연봉을 더 큰 수로 정령을 해본다
+--1차 정령 한 것의 중복된 값만 정렬할 수 있다!! 
+SELECT *
+FROM tbl_student
+ORDER BY score ASC, sal DESC; --score을 오름차순으로 정렬하고, 중복된 값은 연봉이 큰 값으로 내림차순으로 2차 정렬을 했다!!
+--         1차 정렬,  2차 정렬
+
+
+-- 테이블 구조(desc)
+DESC tbl_student;
+
+-- tbl_student 테이블로부터 모든 값(*)을 select해오세요. *(아스테리크)
+SELECT * FROM tbl_student; -- INSRET INTO 삽입후 실행해줘야함, from절 부터 읽기
+
+CREATE TABLE tbl_study(
+    sno VARCHAR2(20) PRIMARY KEY, --회원번호
+    sname VARCHAR2(50) NOT NULL,  --회원이름
+    sage NUMBER(2)                --회원나이
+);
+-- INSERT로 값을 등록하는 첫번째 방법(가장 많이 사용)
+INSERT INTO tbl_study(sno, sname, sage)
+VALUES('1', '종희', 27);
+
+--INSERT로 값을 등록하는 두번째 방법 / 모든 컬럼의 값을 다 넣을 때만 가능하다(그러나 쓸 일이 별로 없으므로 잘 안쓰는 방법이다)
+INSERT INTO tbl_study
+VALUES('2', '승주', 28); 
